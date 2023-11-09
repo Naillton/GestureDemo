@@ -12,7 +12,9 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.gestures.rememberScrollableState
+import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -42,6 +44,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -78,7 +81,8 @@ fun MainScreen() {
         // DragDemo()
         // DragPointer()
         // ScrollableModifier()
-        ScrollableModifier1()
+        // ScrollableModifier1()
+        MultiTouchDemo()
     }
 }
 
@@ -254,6 +258,43 @@ fun ScrollableModifier1() {
         }
     }
 }
+
+/**
+ * Detectando gestos de pinca, gestos de rotacao
+ */
+
+@Composable
+fun MultiTouchDemo() {
+    // definindo estado para a escala quando utilizarmos o gesto de pinca
+    var scale by rememberSaveable { mutableStateOf(1f) }
+    // definindo angle para gesto de rotacao
+    var angle by rememberSaveable { mutableStateOf(0f) }
+    // definindo  gesto traslation onde nos poderemos mover o elemento na horizontal ou vertical
+    var offset by remember { mutableStateOf(Offset.Zero) }
+
+    // funcao state que tera 3 parametros de mudanca de gestos
+    val state = rememberTransformableState {scaleChange, offsetChange, rotationChange ->
+        scale *= scaleChange
+        angle += rotationChange
+        offset += offsetChange
+    }
+
+    Box(
+        // definindo camada grafica para podermos usar os gestos
+        modifier = Modifier
+            .graphicsLayer(
+                scaleX = scale,
+                scaleY = scale,
+                rotationZ = angle,
+                translationX = offset.x,
+                translationY = offset.y
+            )
+            .transformable(state = state)
+            .background(Color.Blue)
+            .size(100.dp)
+    )
+}
+
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
